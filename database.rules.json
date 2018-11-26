@@ -1,0 +1,7 @@
+{
+    "rules": {
+        "data": {
+            ".read": true
+        }
+    }
+}

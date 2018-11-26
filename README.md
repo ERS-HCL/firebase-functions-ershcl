@@ -17,5 +17,6 @@ Login to your firebase account
 - Run the following command to deploy the functions
 
 ```
+firebase functions:config:set gmail.email=<EMAIL> gmail.password=<PWD> gmail.recepiants=<EMAIL_RECEPIANTS>
 firebase deploy
 ```
