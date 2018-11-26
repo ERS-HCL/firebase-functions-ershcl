@@ -29,7 +29,10 @@ const mailTransport = nodemailer.createTransport({
 
 
 export const challengeUpdate = functions.https.onRequest(async (request, response) => {
-
+  response.set("Access-Control-Allow-Origin", "*");
+  response.set("Access-Control-Allow-Methods", "*");
+  response.set("Access-Control-Allow-Headers", "Content-Type");
+  response.set("Access-Control-Max-Age", "3600");
   const {
     updatedOn,
     updatedBy,
