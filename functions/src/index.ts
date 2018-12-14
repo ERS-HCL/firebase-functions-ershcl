@@ -28,7 +28,7 @@ const mailTransport = nodemailer.createTransport({
 });
 
 
-export const challengeUpdate = functions.https.onRequest(async (request, response) => {
+export const challengeUpdate = functions.https.onRequest((request, response) => {
   response.set("Access-Control-Allow-Origin", "*");
   response.set("Access-Control-Allow-Methods", "*");
   response.set("Access-Control-Allow-Headers", "Content-Type");
@@ -57,34 +57,41 @@ export const challengeUpdate = functions.https.onRequest(async (request, respons
     subject: mailSubject,
     html: ''
   };
+
+  if (domain === undefined || updatedBy === undefined) {
+    response.status(400).send('Empty post request');
+    return;
+  }
+  
   mailOptions.subject = mailOptions.subject + ' : ' + domain + ' : ' + updatedBy
   mailOptions.html =
-    ((id) && ('<b>Id: </b>' + id + '<br>')) +
-    ((name) && ('<b>Name: </b>' + name + '<br>')) +
-    ((description) && ('<b>Description: </b>' + description + '<br>')) +
-    ((impact) && ('<b>Impact: </b>' + impact + '<br>')) +
-    ((contributor) && ('<b>Contributor: </b>' + contributor + '<br>')) +
-    ((domain) && ('<b>Domain: </b>' + domain + '<br>')) +
-    ((status) && ('<b>Status: </b>' + status + '<br>')) +
-    ((priority) && ('<b>Priority: </b>' + priority + '<br>')) +
-    ((recommendation) && ('<b>Recommendation: </b>' + recommendation + '<br>')) +
-    ((githubURL) && ('<b>Github URL: </b>' + githubURL + '<br>')) +
-    ((owner) && ('<b>Owner: </b>' + owner + '<br>')) +
-    ((implementor) && ('<b>Implementor: </b>' + implementor + '<br>')) +
-    ((updatedOn) && ('<b>UpdatedOn: </b>' + updatedOn + '<br>')) +
-    ((updatedBy) && ('<b>UpdatedBy: </b>' + updatedBy + '<br>'));
+    ((id !== undefined ) ? ('<b>Id: </b>' + id + '<br>'):'') +
+    ((name !== undefined) ? ('<b>Name: </b>' + name + '<br>'):'') +
+    ((description !== undefined) ? ('<b>Description: </b>' + description + '<br>'):'') +
+    ((impact !== undefined) ? ('<b>Impact: </b>' + impact + '<br>'):'') +
+    ((contributor !== undefined) ? ('<b>Contributor: </b>' + contributor + '<br>'):'') +
+    ((domain !== undefined) ? ('<b>Domain: </b>' + domain + '<br>'):'') +
+    ((status !== undefined) ? ('<b>Status: </b>' + status + '<br>'):'') +
+    ((priority !== undefined) ? ('<b>Priority: </b>' + priority + '<br>'):'') +
+    ((recommendation !== undefined) ? ('<b>Recommendation: </b>' + recommendation + '<br>'):'') +
+    ((githubURL !== undefined) ? ('<b>Github URL: </b>' + githubURL + '<br>'):'') +
+    ((owner !== undefined) ? ('<b>Owner: </b>' + owner + '<br>'):'') +
+    ((implementor !== undefined) ? ('<b>Implementor: </b>' + implementor + '<br>'):'') +
+    ((updatedOn !== undefined) ? ('<b>UpdatedOn: </b>' + updatedOn + '<br>'):'') +
+    ((updatedBy !== undefined) ? ('<b>UpdatedBy: </b>' + updatedBy + '<br>'):'');
 
-  return cors(request, response, async () => {
-    try {
-      await mailTransport.sendMail(mailOptions);
-
-      //  console.log(val);
-      response.send('Email Sent');
-
-    } catch (error) {
-      console.error('There was an error while sending the email:', error);
-    }
-  })
+  cors(request, response, () => {
+    mailTransport.sendMail(mailOptions)
+      .then(() => {
+        response.status(200).send('Email Sent');
+        return;
+      })
+      .catch((error) => {
+        console.error('There was an error while sending the email:', error);
+        response.status(400).send('There was an error while sending the email:' + error);
+        return;
+      })
+  });
 });
 
 // Start writing Firebase Functions
